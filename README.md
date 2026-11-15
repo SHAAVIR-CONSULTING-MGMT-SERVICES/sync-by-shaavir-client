@@ -34,7 +34,7 @@ performing the distribution.
 | One line appended to `NEXTCLOUD.cmake`: `include("${CMAKE_SOURCE_DIR}/OEM.cmake")`, plus `OEM.cmake` copied next to it | `scripts/apply-oem.sh` | Product name, server, update feed, behaviour options and Windows GUIDs (values in `OEM.cmake`) |
 | Files under `theme/` and `admin/win/msi/gui/` replaced by the files in `theme/` and `installer/windows/` here | `scripts/apply-oem.sh` | Icons, logos and installer artwork. Upstream's code loads the stock logo by the fixed file name `wizard-nextcloud.*` (`src/libsync/theme.cpp`); those files keep that name but contain this product's logo |
 | `patches/0001-enforced-server-url-ignores-overrides.patch` applied | `scripts/apply-oem.sh` | With the server URL enforced, a saved `--overrideserverurl` is ignored and command-line account setup (`--serverurl`) refuses any other server |
-| `patches/0002-wizard-virtual-files-only.patch` applied | `scripts/apply-oem.sh` | Virtual files are always on, so the setup wizard hides the two sync choices that cannot be picked and the "Local sync folder" section (its Choose button is disabled; the default folder is used), and shows "Virtual files" without a description |
+| `patches/0002-wizard-virtual-files-only.patch` applied | `scripts/apply-oem.sh` | Virtual files are always on, so the setup wizard shows "Virtual files" without a description, keeps the two other sync choices greyed out with a Contact button that e-mails support@13sync.com, and hides the "Local sync folder" section (the default folder is used) |
 | The Craft recipe `nextcloud-client` (build tool input, not client source): kept-executable list and package names changed to this product's executable | `scripts/patch-blueprint.py` | Otherwise the packaging step would drop the branded executable |
 
 License: see `LICENSE`. This repository's own files are distributed under the same terms
@@ -100,8 +100,8 @@ installed; upstream's general instructions are in the craft-blueprints-nextcloud
 ## Behaviour of this build
 
 - Server address: https://drive.shaavir.com.
-- Windows virtual files (placeholders that download on open) are always on; the setup wizard shows only that
-  choice and no folder picker (`patches/0002`).
+- Windows virtual files (placeholders that download on open) are always on; the other sync choices are shown greyed
+  out with a Contact button, and there is no folder picker (`patches/0002`).
 - One account per installation; accounts from a stock client are never imported.
 - With the server enforced, a saved `--overrideserverurl` is ignored and command-line account setup refuses
   any other server (`patches/0001`).

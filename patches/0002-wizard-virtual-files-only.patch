@@ -1,14 +1,15 @@
-Reason: with ENFORCE_VIRTUAL_FILES_SYNC_FOLDER ON, the sync options page showed "Synchronize everything" and
-"Choose what to sync" greyed out, "Download files on-demand" under "Virtual files", and a "Local sync folder"
-section whose Choose button is disabled. Hide the two rows and the folder section when classic sync is unavailable
-and drop the description; the client still uses its default folder. Against nextcloud/desktop v34.0.7
-(1e5b93f08b8ce07ffb3ad47d7def17df469b189c). No effect when classic sync is available (enforcement off, or virtual
-files unsupported on the PC).
+Reason: with ENFORCE_VIRTUAL_FILES_SYNC_FOLDER ON, the sync options page showed "Download files on-demand" under
+"Virtual files", "Synchronize everything" / "Choose what to sync" greyed out with no way to ask for them, and a
+"Local sync folder" section whose Choose button is disabled. Drop the description, keep the two rows (still disabled),
+add a Contact button that e-mails the operator's support address, and hide the folder section (the default folder
+is used). Rendered per tenant by client-build/gen-oem.py from client-build/templates/patches/ (D-227, D-234).
+Against nextcloud/desktop v34.0.7 (1e5b93f08b8ce07ffb3ad47d7def17df469b189c). No effect when classic sync is
+available (enforcement off, or virtual files unsupported on the PC).
 diff --git a/src/gui/wizard/qml/SyncOptionsPage.qml b/src/gui/wizard/qml/SyncOptionsPage.qml
-index b06206a..30c8c66 100644
+index b06206a..9719707 100644
 --- a/src/gui/wizard/qml/SyncOptionsPage.qml
 +++ b/src/gui/wizard/qml/SyncOptionsPage.qml
-@@ -88,13 +88,14 @@ Item {
+@@ -88,7 +88,7 @@ Item {
                  Layout.fillWidth: true
                  visible: root.controller.canUseVirtualFiles
                  title: root.controller.isUsingFileProvider ? qsTr("File Provider") : qsTr("Virtual files")
@@ -17,22 +18,35 @@ index b06206a..30c8c66 100644
                  selected: root.controller.syncMode === AccountWizardController.VirtualFiles
                  onClicked: root.controller.setSyncMode(AccountWizardController.VirtualFiles)
              }
+@@ -110,13 +110,35 @@ Item {
+                 selected: root.controller.syncMode === AccountWizardController.SelectiveSync
+                 onClicked: root.controller.openSelectiveSync()
+             }
++
++            RowLayout {
++                Layout.fillWidth: true
++                Layout.topMargin: 4
++                spacing: 8
++                visible: !root.controller.canUseClassicSync
++
++                EnforcedPlainTextLabel {
++                    text: qsTr("Need all files offline or only some folders?")
++                    color: root.hintTextColor
++                    font.pixelSize: Style.pixelSize
++                    Layout.fillWidth: true
++                    wrapMode: Text.WordWrap
++                }
++
++                WizardButton {
++                    text: qsTr("Contact")
++                    Layout.preferredWidth: 96
++                    Layout.preferredHeight: Style.wizardFooterButtonHeight
++                    onClicked: Qt.openUrlExternally("mailto:support@13sync.com?subject=Sync%20by%20Shaavir%3A%20sync%20options%20request")
++                }
++            }
+         }
  
-             OptionRow {
-                 Layout.fillWidth: true
-+                visible: root.controller.canUseClassicSync
-                 enabled: root.controller.canUseClassicSync
-                 title: qsTr("Synchronize everything")
-                 description: root.controller.syncEverythingDescription
-@@ -104,6 +105,7 @@ Item {
- 
-             OptionRow {
-                 Layout.fillWidth: true
-+                visible: root.controller.canUseClassicSync
-                 enabled: root.controller.canUseClassicSync
-                 title: qsTr("Choose what to sync")
-                 description: ""
-@@ -116,7 +118,7 @@ Item {
+         ColumnLayout {
              Layout.fillWidth: true
              Layout.topMargin: 18
              spacing: 6
