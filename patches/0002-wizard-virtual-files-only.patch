@@ -1,0 +1,43 @@
+Reason: with ENFORCE_VIRTUAL_FILES_SYNC_FOLDER ON, the sync options page showed "Synchronize everything" and
+"Choose what to sync" greyed out, "Download files on-demand" under "Virtual files", and a "Local sync folder"
+section whose Choose button is disabled. Hide the two rows and the folder section when classic sync is unavailable
+and drop the description; the client still uses its default folder. Against nextcloud/desktop v34.0.7
+(1e5b93f08b8ce07ffb3ad47d7def17df469b189c). No effect when classic sync is available (enforcement off, or virtual
+files unsupported on the PC).
+diff --git a/src/gui/wizard/qml/SyncOptionsPage.qml b/src/gui/wizard/qml/SyncOptionsPage.qml
+index b06206a..30c8c66 100644
+--- a/src/gui/wizard/qml/SyncOptionsPage.qml
++++ b/src/gui/wizard/qml/SyncOptionsPage.qml
+@@ -88,13 +88,14 @@ Item {
+                 Layout.fillWidth: true
+                 visible: root.controller.canUseVirtualFiles
+                 title: root.controller.isUsingFileProvider ? qsTr("File Provider") : qsTr("Virtual files")
+-                description: qsTr("Download files on-demand")
++                description: ""
+                 selected: root.controller.syncMode === AccountWizardController.VirtualFiles
+                 onClicked: root.controller.setSyncMode(AccountWizardController.VirtualFiles)
+             }
+ 
+             OptionRow {
+                 Layout.fillWidth: true
++                visible: root.controller.canUseClassicSync
+                 enabled: root.controller.canUseClassicSync
+                 title: qsTr("Synchronize everything")
+                 description: root.controller.syncEverythingDescription
+@@ -104,6 +105,7 @@ Item {
+ 
+             OptionRow {
+                 Layout.fillWidth: true
++                visible: root.controller.canUseClassicSync
+                 enabled: root.controller.canUseClassicSync
+                 title: qsTr("Choose what to sync")
+                 description: ""
+@@ -116,7 +118,7 @@ Item {
+             Layout.fillWidth: true
+             Layout.topMargin: 18
+             spacing: 6
+-            visible: root.controller.localSyncFolderRequired
++            visible: root.controller.localSyncFolderRequired && root.controller.canUseClassicSync
+ 
+             EnforcedPlainTextLabel {
+                 text: qsTr("Local sync folder")
